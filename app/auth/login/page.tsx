@@ -9,6 +9,7 @@ import Image from "next/image";
 import Logo from "@/app/assets/logo.svg";
 import { Button } from "@/components/ui/custom/button";
 import { errorToast } from "@/components/ui/custom/toast";
+import Link from "next/link";
 
 export default function Login() {
   const router = useRouter();
@@ -65,6 +66,13 @@ export default function Login() {
 
         <Button label="Login" isLoading={isLoading} />
       </form>
+
+      <Link href="/auth/register">
+        <p className="text-center mt-4">
+          No account yet?{" "}
+          <span className="underline font-semibold">Sign up</span>
+        </p>
+      </Link>
     </section>
   );
 }

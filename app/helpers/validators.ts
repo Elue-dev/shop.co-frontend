@@ -8,8 +8,14 @@ interface ValidatorConfig {
 
 export const validators = {
   required: (fieldName: string = "Field"): ValidatorConfig => ({
-    onChange: ({ value }: { value: _TSFixMe }) =>
-      !value ? `${fieldName} is required` : undefined,
+    onChange: ({ value }: { value: _TSFixMe }) => {
+      const isEmpty =
+        value === "" ||
+        value === null ||
+        value === undefined ||
+        (Array.isArray(value) && value.length === 0);
+      return isEmpty ? `${fieldName} is required` : undefined;
+    },
   }),
 
   minLength: (min: number, fieldName: string = "Field"): ValidatorConfig => ({

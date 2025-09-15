@@ -1,6 +1,6 @@
 export interface AuthSuccess {
   success: true;
-  data: Data;
+  data: Account;
   token: string;
 }
 
@@ -10,7 +10,7 @@ export interface AuthError {
 }
 
 export type AuthResponse = AuthSuccess | AuthError;
-export interface Data {
+export interface Account {
   id: string;
   name: string;
   status: string;
