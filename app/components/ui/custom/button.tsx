@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
 import { ReactNode } from "react";
-import { ShadButton } from "@/components/ui/button";
+import { ShadButton } from "@/app/components/ui/button";
 
 interface ButtonProps {
   children?: ReactNode;
@@ -10,6 +10,7 @@ interface ButtonProps {
   onClick?: () => void;
   isLoading?: boolean;
   disabled?: boolean;
+  small?: boolean;
 }
 
 export function Button({
@@ -19,13 +20,15 @@ export function Button({
   onClick,
   isLoading,
   disabled,
+  small,
 }: ButtonProps) {
   return (
     <ShadButton
       onClick={disabled || isLoading ? () => {} : () => onClick?.()}
       className={cn(
-        "bg-black hover:bg-black/90 text-white font-bold py-[26px] rounded-lg cursor-pointer w-full",
+        "bg-black hover:bg-black/90 text-white font-bold py-[24px] rounded-full cursor-pointer w-full",
         disabled && "opacity-50 cursor-not-allowed",
+        small && "w-[200px]",
         classNames,
       )}
     >

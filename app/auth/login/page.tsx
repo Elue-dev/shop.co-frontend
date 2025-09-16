@@ -3,12 +3,12 @@
 import { useAuthStore } from "@/app/store/auth";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-import FormInput from "@/components/ui/custom/form-input";
+import FormInput from "@/app/components/ui/custom/form-input";
 import { validators } from "@/app/helpers/validators";
 import Image from "next/image";
 import Logo from "@/app/assets/logo.svg";
-import { Button } from "@/components/ui/custom/button";
-import { errorToast } from "@/components/ui/custom/toast";
+import { Button } from "@/app/components/ui/custom/button";
+import { errorToast } from "@/app/components/ui/custom/toast";
 import Link from "next/link";
 
 export default function Login() {
@@ -52,7 +52,7 @@ export default function Login() {
           name="email"
           label="Email Address"
           placeholder="Enter your email"
-          validators={validators.email}
+          validator={validators.email}
         />
 
         <FormInput
@@ -61,7 +61,7 @@ export default function Login() {
           label="Password"
           type="password"
           placeholder="Enter your password"
-          validators={validators.password}
+          validator={validators.password}
         />
 
         <Button label="Login" isLoading={isLoading} />

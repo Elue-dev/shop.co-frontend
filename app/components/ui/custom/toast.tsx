@@ -69,7 +69,6 @@ export function renderServerErrors(
           description: messages,
         });
       } else if (typeof messages === "object") {
-        // recursive flatten
         renderServerErrors(mainMessage, messages as ErrorObject);
       }
     }

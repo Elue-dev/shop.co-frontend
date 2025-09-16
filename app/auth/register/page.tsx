@@ -1,16 +1,16 @@
 "use client";
 
-import { useAuthStore } from "@/app/store/auth";
-import { useRouter } from "next/navigation";
-import { useForm } from "@tanstack/react-form";
-import FormInput from "@/components/ui/custom/form-input";
-import { validators } from "@/app/helpers/validators";
-import Image from "next/image";
 import Logo from "@/app/assets/logo.svg";
-import { Button } from "@/components/ui/custom/button";
-import { errorToast, renderServerErrors } from "@/components/ui/custom/toast";
+import { Button } from "@/app/components/ui/custom/button";
+import FormInput from "@/app/components/ui/custom/form-input";
+import FormSelect from "@/app/components/ui/custom/form-select";
+import { renderServerErrors } from "@/app/components/ui/custom/toast";
+import { validators } from "@/app/helpers/validators";
+import { useAuthStore } from "@/app/store/auth";
+import { useForm } from "@tanstack/react-form";
+import Image from "next/image";
 import Link from "next/link";
-import FormSelect from "@/components/ui/custom/form-select";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function Register() {
           name="name"
           label="Account Name"
           placeholder="Chhose an acount name"
-          validators={validators.required("Account Name")}
+          validator={validators.required("Account Name")}
         />
 
         <FormInput
@@ -72,7 +72,7 @@ export default function Register() {
           name="first_name"
           label="First Name"
           placeholder="Enter your first name"
-          validators={validators.required("First Name")}
+          validator={validators.required("First Name")}
         />
 
         <FormInput
@@ -80,7 +80,7 @@ export default function Register() {
           name="last_name"
           label="Last Name"
           placeholder="Enter your last name"
-          validators={validators.required("Last Name")}
+          validator={validators.required("Last Name")}
         />
 
         <FormInput
@@ -88,7 +88,7 @@ export default function Register() {
           name="email"
           label="Email Address"
           placeholder="Enter your email"
-          validators={validators.email}
+          validator={validators.email}
         />
 
         <FormInput
@@ -97,7 +97,7 @@ export default function Register() {
           label="Password"
           type="password"
           placeholder="Enter your password"
-          validators={validators.password}
+          validator={validators.password}
         />
 
         <FormSelect
@@ -105,7 +105,7 @@ export default function Register() {
           name="type"
           label="Account Type"
           placeholder="Specify account type"
-          validators={validators.required("Account Type")}
+          validator={validators.required("Account Type")}
           options={[
             { label: "Buyer", value: "buyer" },
             { label: "Seller", value: "seller" },

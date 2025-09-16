@@ -4,7 +4,7 @@ import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from "@/app/components/ui/input-otp";
 import { cn } from "@/lib/utils";
 import React from "react";
 
@@ -12,7 +12,7 @@ interface FormOTPProps {
   form: _TSFixMe;
   name: string;
   label?: string;
-  validators?: _TSFixMe;
+  validator: _TSFixMe;
   className?: string;
   disabled?: boolean;
   required?: boolean;
@@ -22,13 +22,13 @@ const FormOTP: React.FC<FormOTPProps> = ({
   form,
   name,
   label,
-  validators = {},
+  validator = {},
   className = "",
   disabled = false,
   required = false,
 }) => {
   return (
-    <form.Field name={name} validators={validators}>
+    <form.Field name={name} validators={validator}>
       {(field: _TSFixMe) => (
         <div className={cn("form-group mb-5", className)}>
           {label && (

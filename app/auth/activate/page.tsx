@@ -3,9 +3,9 @@
 import Logo from "@/app/assets/logo.svg";
 import { validators } from "@/app/helpers/validators";
 import { useAuthStore } from "@/app/store/auth";
-import { Button } from "@/components/ui/custom/button";
-import FormOTP from "@/components/ui/custom/form-otp";
-import { renderServerErrors } from "@/components/ui/custom/toast";
+import { Button } from "@/app/components/ui/custom/button";
+import FormOTP from "@/app/components/ui/custom/form-otp";
+import { renderServerErrors } from "@/app/components/ui/custom/toast";
 import { useForm } from "@tanstack/react-form";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -52,7 +52,7 @@ export default function Activate() {
         <FormOTP
           form={form}
           name="otp"
-          validators={validators.minLength(6, "OTP")}
+          validator={validators.minLength(6, "OTP")}
         />
 
         <Button label="Proceed" isLoading={isLoading} />

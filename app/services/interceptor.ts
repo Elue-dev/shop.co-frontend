@@ -1,9 +1,11 @@
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { isNoTokenRoute } from "./route-groups";
+import Cookies from "js-cookie";
+import { errorToast } from "@/app/components/ui/custom/toast";
 
 const getAuthorizationToken = (): string | null => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("access_token");
+    const token = Cookies.get("access_token");
     return token ? `Bearer ${token}` : null;
   }
   return null;
@@ -32,14 +34,14 @@ export function requestErrorInterceptor(
   return Promise.reject(error);
 }
 
-export function responseSuccessInterceptor(response: AxiosResponse): any {
+export function responseSuccessInterceptor(response: AxiosResponse): _TSFixMe {
   const url = response.config.url as string;
   if (
     (url.includes("/auth/login") || url.includes("/auth/register")) &&
     response.config.method === "post" &&
     response.data.access_token
   ) {
-    localStorage.setItem("access_token", response.data.access_token);
+    Cookies.set("access_token", response.data.token);
   }
 
   return response.data;
@@ -59,10 +61,18 @@ export function responseErrorInterceptor(
 
     switch (status) {
       case 401:
-        if (typeof data === "object" && data.message === "invalid_token") {
-          localStorage.removeItem("access_token");
+        if (
+          typeof data === "object" &&
+          (data as _TSFixMe).error === "invalid_token"
+        ) {
+          Cookies.remove("access_token");
           if (typeof window !== "undefined") {
             console.warn("Token expired, redirecting to login");
+            errorToast({
+              title: "Session expired",
+              description: "Your session has expired. Please log in again.",
+            });
+            Cookies.remove("access_token");
             window.location.href = "/auth/login";
           }
         }

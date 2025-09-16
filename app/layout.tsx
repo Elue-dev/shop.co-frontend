@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
-import { Toaster } from "sonner";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { TanstackProvider } from "@/components/providers/tanstack-provider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Shop.co",
@@ -18,17 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased`}>
-        <AuthProvider>
-          <Toaster richColors />
-          {/*<ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >*/}
-          {children}
-          {/*</ThemeProvider>*/}
-        </AuthProvider>
+        <TanstackProvider>
+          <AuthProvider>
+            <Toaster richColors />
+
+            {children}
+          </AuthProvider>
+        </TanstackProvider>
       </body>
     </html>
   );

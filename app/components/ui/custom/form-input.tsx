@@ -8,7 +8,7 @@ interface FormInputProps {
   name: string;
   label?: string;
   type?: "text" | "email" | "password" | "number" | "tel" | "url";
-  validators?: _TSFixMe;
+  validator: _TSFixMe;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -20,7 +20,7 @@ const FormInput: React.FC<FormInputProps> = ({
   name,
   label,
   type = "text",
-  validators = {},
+  validator = {},
   placeholder,
   className = "",
   disabled = false,
@@ -28,7 +28,7 @@ const FormInput: React.FC<FormInputProps> = ({
   ...props
 }) => {
   return (
-    <form.Field name={name} validators={validators}>
+    <form.Field name={name} validators={validator}>
       {(field: _TSFixMe) => (
         <div className={cn("form-group mb-5", className)}>
           {label && (

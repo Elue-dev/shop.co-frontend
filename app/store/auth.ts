@@ -6,6 +6,7 @@ import { ErrorWrapper } from "../services/wrapper";
 
 interface AuthState {
   account: Account | null;
+  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -37,6 +38,7 @@ interface RegisterFields {
 
 export const useAuthStore = create<AuthState>((set) => ({
   account: null,
+  token: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -55,6 +57,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       set({
         account: data,
+        token: token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -99,6 +102,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       set({
         account: data,
+        token: token,
         isAuthenticated: true,
         isLoading: false,
         error: null,

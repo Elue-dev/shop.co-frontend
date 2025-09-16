@@ -6,7 +6,7 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+} from "@/app/components/ui/select";
 import { cn } from "@/lib/utils";
 import React from "react";
 
@@ -20,7 +20,7 @@ interface FormSelectProps {
   name: string;
   label?: string;
   placeholder?: string;
-  validators?: _TSFixMe;
+  validator: _TSFixMe;
   options: Option[];
   className?: string;
   disabled?: boolean;
@@ -32,14 +32,14 @@ const FormSelect: React.FC<FormSelectProps> = ({
   name,
   label,
   placeholder,
-  validators = {},
+  validator = {},
   options,
   className = "",
   disabled = false,
   required = false,
 }) => {
   return (
-    <form.Field name={name} validators={validators}>
+    <form.Field name={name} validators={validator}>
       {(field: _TSFixMe) => (
         <div className={cn("form-group mb-5", className)}>
           {label && (
