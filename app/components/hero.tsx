@@ -13,7 +13,7 @@ import CK from "@/app/assets/ck.svg";
 export default function Hero() {
   return (
     <section>
-      <section className="bg-[#F2F0F1] h-[600px]">
+      <section className="bg-brown h-[600px]">
         <div className="app-container flex  items-center justify-center mt-6">
           <div className="mt-12 w-[40%]">
             <h1 className="text-[60px] leading-[64px]">

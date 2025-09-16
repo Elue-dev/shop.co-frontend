@@ -11,6 +11,8 @@ interface ButtonProps {
   isLoading?: boolean;
   disabled?: boolean;
   small?: boolean;
+  auto?: boolean;
+  inverted?: boolean;
 }
 
 export function Button({
@@ -21,6 +23,8 @@ export function Button({
   isLoading,
   disabled,
   small,
+  auto,
+  inverted,
 }: ButtonProps) {
   return (
     <ShadButton
@@ -29,6 +33,8 @@ export function Button({
         "bg-black hover:bg-black/90 text-white font-bold py-[24px] rounded-full cursor-pointer w-full",
         disabled && "opacity-50 cursor-not-allowed",
         small && "w-[200px]",
+        auto && "w-auto",
+        inverted && "bg-[#f8f8f8] text-black hover:bg-gray-200/70",
         classNames,
       )}
     >
