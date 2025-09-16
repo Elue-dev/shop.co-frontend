@@ -6,13 +6,16 @@ import Logo from "@/app/assets/logo.svg";
 import SearchInput from "./ui/custom/search-input";
 import { CircleUser, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAuthStore } from "../store/auth";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(search);
+  const { account } = useAuthStore();
 
   useEffect(() => {
     setSearchQuery("");
@@ -29,13 +32,25 @@ export default function Header() {
     }
   }
 
+  if (pathname.includes("auth")) return null;
+
   return (
     <header className="app-container pt-4">
       <div className="flex items-center justify-between">
-        <Link href="/">
-          <Image src={Logo} alt="Logo" className="mb-2" />
-        </Link>
-        <form onSubmit={handleSubmit} className="flex-1 mx-6">
+        <div className="flex items-center gap-14">
+          <Link href="/">
+            <Image src={Logo} alt="Logo" className="mb-2" />
+          </Link>
+
+          <div className="flex items-center space-x-6">
+            <Link href="/products">Shop</Link>
+            <Link href="/sellers">Brands</Link>
+            <Link href="/chats">Chats</Link>
+            <p>{account?.user.first_name}</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mx-6">
           <SearchInput
             placeholder="Search products..."
             value={searchQuery}

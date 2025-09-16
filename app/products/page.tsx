@@ -7,6 +7,7 @@ import ProductCard from "../components/products/product-card";
 import AppSelect from "../components/ui/custom/select";
 import { Button } from "../components/ui/custom/button";
 import { ProductFilters } from "../types/product";
+import { LargeTitle } from "../components/ui/custom/large-title";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -52,12 +53,11 @@ export default function ProductsPage() {
     router.push(`/products?${params.toString()}`);
   }
 
-  console.log({ filters });
-
   return (
     <div className="app-container">
       <div className="mb-6 mt-10">
-        <h1 className="text-[25px]">Products</h1>
+        <LargeTitle text="Products" />
+
         {searchParams.size > 0 && (
           <Button
             label="Clear filters"

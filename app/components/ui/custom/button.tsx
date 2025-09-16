@@ -3,9 +3,7 @@ import { Loader } from "lucide-react";
 import { ReactNode } from "react";
 import { ShadButton } from "@/app/components/ui/button";
 
-interface ButtonProps {
-  children?: ReactNode;
-  label: string;
+type ButtonBaseProps = {
   classNames?: string;
   onClick?: () => void;
   isLoading?: boolean;
@@ -13,7 +11,19 @@ interface ButtonProps {
   small?: boolean;
   auto?: boolean;
   inverted?: boolean;
-}
+};
+
+type ButtonWithLabel = ButtonBaseProps & {
+  label: string;
+  children?: never;
+};
+
+type ButtonWithChildren = ButtonBaseProps & {
+  children: ReactNode;
+  label?: never;
+};
+
+export type ButtonProps = ButtonWithLabel | ButtonWithChildren;
 
 export function Button({
   children,
@@ -30,7 +40,7 @@ export function Button({
     <ShadButton
       onClick={disabled || isLoading ? () => {} : () => onClick?.()}
       className={cn(
-        "bg-black hover:bg-black/90 text-white font-bold py-[24px] rounded-full cursor-pointer w-full",
+        "bg-black hover:bg-black/90 text-white font-bold py-[26px] rounded-full cursor-pointer w-full",
         disabled && "opacity-50 cursor-not-allowed",
         small && "w-[200px]",
         auto && "w-auto",

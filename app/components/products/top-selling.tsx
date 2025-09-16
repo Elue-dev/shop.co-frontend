@@ -1,6 +1,7 @@
 import { ProductService } from "@/app/services/api/product-service";
 import ProductCard from "./product-card";
 import ProductSkeleton from "../loaders/product-skeleton";
+import { LargeTitle } from "../ui/custom/large-title";
 
 export default function TopSelling() {
   const { data: products, isLoading } = ProductService.listProducts({
@@ -9,7 +10,7 @@ export default function TopSelling() {
 
   return (
     <div className="app-container mt-14">
-      <h1 className="text-center text-[30px] mb-6">Top Selling</h1>
+      <LargeTitle text="Top Selling" centered classNames="text-[30px] mb-6" />
 
       {isLoading ? (
         <ProductSkeleton iteration={4} />

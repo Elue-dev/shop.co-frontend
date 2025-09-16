@@ -1,21 +1,29 @@
 import { ChangeEventHandler } from "react";
 import { Input } from "../input";
 import { Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchInputProps {
   placeholder: string;
   value: string;
   onChange: ChangeEventHandler<HTMLInputElement>;
+  classNames?: string;
 }
 
 export default function SearchInput({
   placeholder,
   value,
   onChange,
+  classNames,
 }: SearchInputProps) {
   return (
     <section>
-      <div className="flex items-center justify-center w-[400px] bg-[#f8f8f8] border-0 rounded-full py-1">
+      <div
+        className={cn(
+          "flex items-center justify-center w-[450px] bg-[#f8f8f8] border-0 rounded-full py-1",
+          classNames,
+        )}
+      >
         <Search className="h-5 mr-2 text-gray-600 ml-5" />
         <Input
           placeholder={placeholder}

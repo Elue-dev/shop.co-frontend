@@ -3,6 +3,7 @@ import { ProductService } from "@/app/services/api/product-service";
 import { cn } from "@/lib/utils";
 import DressStyleSkeleton from "../loaders/dress-style-skeleton";
 import Link from "next/link";
+import { LargeTitle } from "../ui/custom/large-title";
 
 export default function DressStyles() {
   const { data: dressStyles, isLoading } = ProductService.listDressStyles();
@@ -11,10 +12,12 @@ export default function DressStyles() {
   const bottomRow = dressStyles?.slice(2, 4) || [];
 
   return (
-    <div className="app-container mt-18 bg-[#F0F0F0] rounded-[35px] p-10">
-      <h1 className="text-center text-[40px] mb-8 font-extrabold text-black tracking-wide">
-        BROWSE BY DRESS STYLE
-      </h1>
+    <div className="app-container mt-18 bg-[#F0F0F0] rounded-[35px] py-10 px-20 pb-20">
+      <LargeTitle
+        text="BROWSE BY DRESS STYLE"
+        centered
+        classNames="text-[40px] mb-8 font-extrabold text-black tracking-wide"
+      />
 
       {isLoading ? (
         <DressStyleSkeleton />

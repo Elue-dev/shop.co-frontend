@@ -15,11 +15,11 @@ export default function Hero() {
     <section>
       <section className="bg-brown h-[600px]">
         <div className="app-container flex  items-center justify-center mt-6">
-          <div className="mt-12 w-[40%]">
+          <div className="mt-12 w-[50%]">
             <h1 className="text-[60px] leading-[64px]">
               FIND CLOTHES THAT MATCHES YOUR STYLE
             </h1>
-            <p className="my-8 text-grayish">
+            <p className="my-8 text-grayish max-w-[498px]">
               Browse through our diverse range of meticulously crafted garments,
               designed to bring out your individuality and cater to your sense
               of style.
@@ -29,25 +29,31 @@ export default function Hero() {
 
             <div className="flex items-center gap-3 mt-6">
               <div>
-                <p className="text-[40px] font-semibold">200+</p>
-                <p className="text-grayish">International Brands</p>
+                <p className="text-[35px] font-semibold">200+</p>
+                <p className="text-grayish whitespace-nowrap">
+                  International Brands
+                </p>
               </div>
               <Separator orientation="vertical" className="bg-red-500" />
               <div>
-                <p className="text-[40px] font-semibold">2,000+</p>
-                <p className="text-grayish">High quality product</p>
+                <p className="text-[35px] font-semibold">2,000+</p>
+                <p className="text-grayish whitespace-nowrap">
+                  High quality product
+                </p>
               </div>
               <Separator orientation="vertical" />
               <div>
-                <p className="text-[40px] font-semibold">30,000+</p>
-                <p className="text-grayish">Happy customers</p>
+                <p className="text-[35px] font-semibold">30,000+</p>
+                <p className="text-grayish whitespace-nowrap">
+                  Happy customers
+                </p>
               </div>
               <div></div>
               <div></div>
             </div>
           </div>
 
-          <div className="w-[60%]">
+          <div className="w-[50%]">
             <Image
               src={HeroImage}
               alt="hero image"

@@ -77,6 +77,8 @@
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
     --color-grayish: rgba(0, 0, 0, 0.6);
+    --color-gray200: #f8f8f8;
+    --color-gray300: #eeeeee;
     --color-brown: #f2f0f1;
 }
 

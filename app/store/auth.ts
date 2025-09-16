@@ -70,7 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
         error: errorMessage,
       });
-      throw new ErrorWrapper(errorMessage);
+      throw error;
     }
   },
 

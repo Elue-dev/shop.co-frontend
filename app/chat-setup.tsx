@@ -61,6 +61,7 @@ export default function ChatSetup() {
       });
     })
       .then((ch) => {
+        q;
         setChannel(ch);
         setChannelReady(true);
 

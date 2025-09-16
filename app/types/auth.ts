@@ -10,6 +10,7 @@ export interface AuthError {
 }
 
 export type AuthResponse = AuthSuccess | AuthError;
+
 export interface Account {
   id: string;
   name: string;

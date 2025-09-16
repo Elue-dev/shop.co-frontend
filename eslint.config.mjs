@@ -23,6 +23,7 @@ const eslintConfig = [
       "react/no-unescaped-entities": "off",
       "@typescript-eslint/ban-ts-comment": "off",
       "react-hooks/rules-of-hooks": "off",
+      "react-hooks/exhaustive-dep": "off",
     },
   },
 ];

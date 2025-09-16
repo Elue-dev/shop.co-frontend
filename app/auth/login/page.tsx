@@ -10,6 +10,7 @@ import Logo from "@/app/assets/logo.svg";
 import { Button } from "@/app/components/ui/custom/button";
 import { errorToast } from "@/app/components/ui/custom/toast";
 import Link from "next/link";
+import AppCard from "@/app/components/ui/custom/app-card";
 
 export default function Login() {
   const router = useRouter();
@@ -25,8 +26,11 @@ export default function Login() {
         await login(value.email, value.password);
         router.push("/");
       } catch (error: _TSFixMe) {
+        console.log({ error });
         errorToast({
-          description: error.message,
+          description:
+            error.error ||
+            "Login failed. please ensure your credentials are correct",
           position: "top-right",
         });
       }
@@ -34,7 +38,7 @@ export default function Login() {
   });
 
   return (
-    <section className="">
+    <section>
       <div className="flex flex-col items-center justify-center mb-6">
         <Image src={Logo} alt="Logo" className="mb-2" />
         <p>Let's get you logged in!</p>
