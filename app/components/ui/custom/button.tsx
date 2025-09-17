@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Loader } from "lucide-react";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import { ShadButton } from "@/app/components/ui/button";
 
 type ButtonBaseProps = {
@@ -48,17 +48,19 @@ export function Button({
         classNames,
       )}
     >
-      {children ? (
-        children
-      ) : (
-        <div className="flex items-center justify-center">
-          {isLoading ? (
-            <Loader className="animate-spin" size={20} />
-          ) : (
-            <p className="font-bold text-base">{label}</p>
-          )}
-        </div>
-      )}
+      <div className="flex items-center justify-center gap-x-3 min-w-[150px]">
+        {isLoading ? (
+          <Loader className="animate-spin" size={20} />
+        ) : (
+          <Fragment>
+            {children ? (
+              children
+            ) : (
+              <p className="font-bold text-base">{label}</p>
+            )}
+          </Fragment>
+        )}
+      </div>
     </ShadButton>
   );
 }

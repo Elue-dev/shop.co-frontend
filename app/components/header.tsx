@@ -4,10 +4,16 @@ import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import Image from "next/image";
 import Logo from "@/app/assets/logo.svg";
 import SearchInput from "./ui/custom/search-input";
-import { CircleUser, ShoppingCart } from "lucide-react";
+import {
+  CircleUser,
+  LogOut,
+  MessageSquareText,
+  ShoppingCart,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "../store/auth";
+import AppDropdown from "./ui/custom/app-dropdown";
 
 export default function Header() {
   const router = useRouter();
@@ -15,7 +21,7 @@ export default function Header() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(search);
-  const { account } = useAuthStore();
+  const { account, logout } = useAuthStore();
 
   useEffect(() => {
     setSearchQuery("");
@@ -32,6 +38,25 @@ export default function Header() {
     }
   }
 
+  function handleLogout() {
+    logout(() => {
+      router.push("/auth/login");
+    });
+  }
+
+  const dropdownItems = [
+    {
+      label: "Chats",
+      icon: <MessageSquareText />,
+      action: () => router.push("/chats"),
+    },
+    {
+      label: "Logout",
+      icon: <LogOut className="text-red-500" />,
+      action: () => handleLogout(),
+    },
+  ];
+
   if (pathname.includes("auth")) return null;
 
   return (
@@ -44,9 +69,7 @@ export default function Header() {
 
           <div className="flex items-center space-x-6">
             <Link href="/products">Shop</Link>
-            <Link href="/sellers">Brands</Link>
-            <Link href="/chats">Chats</Link>
-            <p>{account?.user.first_name}</p>
+            <Link href="/sellers">Sellers</Link>
           </div>
         </div>
 
@@ -62,9 +85,18 @@ export default function Header() {
           <Link href="/cart">
             <ShoppingCart />
           </Link>
-          <Link href="/profile">
+
+          <AppDropdown
+            header={
+              <div>
+                <p className="font-medium">{account?.user.full_name}</p>
+                <p className="text-sm text-grayish">{account?.user.email}</p>
+              </div>
+            }
+            items={dropdownItems}
+          >
             <CircleUser />
-          </Link>
+          </AppDropdown>
         </div>
       </div>
     </header>

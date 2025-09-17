@@ -37,6 +37,7 @@ export interface User {
   inserted_at: Date;
   first_name: string;
   last_name: string;
+  full_name: string;
   email: string;
   updated_at: Date;
   confirmed_at: null;

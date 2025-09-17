@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquareMore } from "lucide-react";
+import { Loader, MessageSquareMore } from "lucide-react";
 import AppCard from "../components/ui/custom/app-card";
 import { Button } from "../components/ui/custom/button";
 import { LargeTitle } from "../components/ui/custom/large-title";
@@ -10,14 +10,17 @@ import { ChatService } from "../services/api/chat-service";
 import { useRouter } from "next/navigation";
 import AppAvatar from "../components/ui/custom/app-avatar";
 import { useChatStore } from "../store/chat";
+import { useState } from "react";
 
 export default function Sellers() {
   const router = useRouter();
   const { setSelectedChat } = useChatStore();
   const { data: sellers, isLoading } = AccountsService.listSellers();
   const { mutate: startChat, isPending } = ChatService.createChat();
+  const [loadingSellerId, setLoadingSellerId] = useState<string | null>(null);
 
   function createChat(userId: string) {
+    setLoadingSellerId(userId);
     startChat(userId, {
       onSuccess: function (data) {
         setSelectedChat(data);
@@ -25,6 +28,9 @@ export default function Sellers() {
       },
       onError: function (error: _TSFixMe) {
         console.error("Error starting chat:", error);
+      },
+      onSettled: function () {
+        setLoadingSellerId(null);
       },
     });
   }
@@ -37,27 +43,33 @@ export default function Sellers() {
         <SellersSkeleton />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 mt-8 gap-6">
-          {sellers?.map((seller) => (
-            <AppCard key={seller.id}>
-              <div className="flex flex-col items-center justify-center">
-                <AppAvatar name={seller.name} />
-                <p className="text-[18px] font-medium mt-3">{seller.name}</p>
-                <p className="text-grayish">{seller.user.email}</p>
+          {sellers?.map((seller) => {
+            const isSellerLoading =
+              isPending && loadingSellerId === seller.user.id;
 
-                <Button
-                  onClick={() => createChat(seller.user.id)}
-                  isLoading={isPending}
-                  classNames="mt-4"
-                  auto
-                >
-                  <div className="flex gap-x-3">
-                    <MessageSquareMore />
-                    <span>Chat with seller</span>
-                  </div>
-                </Button>
-              </div>
-            </AppCard>
-          ))}
+            return (
+              <AppCard key={seller.id}>
+                <div className="flex flex-col items-center justify-center">
+                  <AppAvatar name={seller.name} />
+                  <p className="text-[18px] font-medium mt-3">{seller.name}</p>
+                  <p className="text-grayish">{seller.user.email}</p>
+
+                  <Button
+                    onClick={() => createChat(seller.user.id)}
+                    isLoading={isSellerLoading}
+                    disabled={isPending}
+                    classNames="mt-4"
+                    auto
+                  >
+                    <>
+                      <MessageSquareMore />
+                      <span>Chat with seller</span>
+                    </>
+                  </Button>
+                </div>
+              </AppCard>
+            );
+          })}
         </div>
       )}
     </section>
