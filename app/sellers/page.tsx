@@ -8,25 +8,23 @@ import { AccountsService } from "../services/api/account-service";
 import SellersSkeleton from "../components/loaders/sellers-skeleton";
 import { ChatService } from "../services/api/chat-service";
 import { useRouter } from "next/navigation";
-import { getInitials } from "../helpers";
 import AppAvatar from "../components/ui/custom/app-avatar";
+import { useChatStore } from "../store/chat";
 
 export default function Sellers() {
   const router = useRouter();
+  const { setSelectedChat } = useChatStore();
   const { data: sellers, isLoading } = AccountsService.listSellers();
-  const { mutate: startChat } = ChatService.createChat();
+  const { mutate: startChat, isPending } = ChatService.createChat();
 
   function createChat(userId: string) {
     startChat(userId, {
-      onSuccess: function () {
-        console.log("Chat started successfully");
-        router.push(`/chats/${userId}`);
+      onSuccess: function (data) {
+        setSelectedChat(data);
+        router.push("/chats");
       },
       onError: function (error: _TSFixMe) {
         console.error("Error starting chat:", error);
-      },
-      onSettled: function () {
-        console.log("Chat creation settled");
       },
     });
   }
@@ -47,9 +45,10 @@ export default function Sellers() {
                 <p className="text-grayish">{seller.user.email}</p>
 
                 <Button
+                  onClick={() => createChat(seller.user.id)}
+                  isLoading={isPending}
                   classNames="mt-4"
                   auto
-                  onClick={() => createChat(seller.user.id)}
                 >
                   <div className="flex gap-x-3">
                     <MessageSquareMore />

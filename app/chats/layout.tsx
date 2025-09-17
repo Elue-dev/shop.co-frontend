@@ -1,26 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import ChatList from "@/app/components/chat/chat-list";
-import ChatDetails from "../components/chat/chat-details";
 import { MessageSquareMore } from "lucide-react";
-import { Chat } from "../types/chat";
+import ChatDetails from "../components/chat/chat-details";
+import { useChatStore } from "../store/chat";
 
 export default function ChatsLayout() {
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const { selectedChat } = useChatStore();
 
   return (
     <div className="app-container mt-10 grid grid-cols-1 md:grid-cols-3 h-[calc(100vh-80px)]">
       <aside className="border-r border-r-gray-100 md:col-span-1 overflow-y-auto">
-        <ChatList
-          selectedChat={selectedChat}
-          onSelectChat={(chat) => setSelectedChat(chat)}
-        />
+        <ChatList />
       </aside>
 
       <main className="md:col-span-2 overflow-y-auto">
         {selectedChat ? (
-          <ChatDetails chat={selectedChat} />
+          <ChatDetails />
         ) : (
           <div className="flex flex-col items-center justify-center h-full">
             <MessageSquareMore size={50} color="#333" />

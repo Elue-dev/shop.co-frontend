@@ -1,25 +1,38 @@
-import { Chat } from "@/app/types/chat";
-import { Separator } from "../ui/separator";
-import { EllipsisVertical, MessageCircleMore, Send } from "lucide-react";
-import { ChatService } from "@/app/services/api/chat-service";
-import { useAuthStore } from "@/app/store/auth";
+import { QUERY_KEYS } from "@/app/helpers/constants";
 import {
   formatDateHeader,
   groupMessagesByDate,
   normalizeMessage,
 } from "@/app/helpers/messages";
-import { cn } from "@/lib/utils";
-import AppAvatar from "../ui/custom/app-avatar";
-import TextareaAutosize from "react-textarea-autosize";
-import { useState, useEffect, useRef } from "react";
-import { Button } from "../ui/custom/button";
+import { ChatService } from "@/app/services/api/chat-service";
 import { initSocket, joinChannel } from "@/app/services/socket-service";
+import { useAuthStore } from "@/app/store/auth";
+import { useChatStore } from "@/app/store/chat";
+import { cn } from "@/lib/utils";
 import { InvalidateQueryFilters, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/app/helpers/constants";
+import {
+  EllipsisVertical,
+  MessageCircleMore,
+  MessageSquareMore,
+  Send,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import AppAvatar from "../ui/custom/app-avatar";
+import { Button } from "../ui/custom/button";
+import { Separator } from "../ui/separator";
+import { actionToast, successToast } from "../ui/custom/toast";
+import { useRouter } from "next/navigation";
+import MessagesLoader from "../loaders/messages-loader";
+import { Chat } from "@/app/types/chat";
 
-export default function ChatDetails({ chat }: { chat: Chat }) {
+export default function ChatDetails() {
   const { account } = useAuthStore();
-  const { data: messages } = ChatService.listChatMessages(chat.id);
+  const { selectedChat, currentChatId, setSelectedChat } = useChatStore();
+  const router = useRouter();
+  const { data: messages, isLoading } = ChatService.listChatMessages(
+    selectedChat?.id ?? currentChatId ?? "",
+  );
   const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -48,7 +61,32 @@ export default function ChatDetails({ chat }: { chat: Chat }) {
 
     initSocket();
 
-    joinChannel(`chat:${chat.id}`, (msg) => {
+    joinChannel(`chat:${selectedChat?.id}`, (msg) => {
+      queryClient.invalidateQueries([
+        QUERY_KEYS.CHATS,
+      ] as InvalidateQueryFilters);
+      queryClient.invalidateQueries([
+        QUERY_KEYS.CHATS,
+        selectedChat?.id,
+        QUERY_KEYS.MESSAGES,
+      ] as InvalidateQueryFilters);
+      if (msg.data.sender.id !== account.user.id) {
+        successToast({
+          title: `New message from ${msg.data.sender.first_name}`,
+          description: `Message: ${msg.data.content}`,
+        });
+        // actionToast({
+        //   title: `New message from ${msg.data.sender.first_name}`,
+        //   description: `Message: ${msg.data.content}`,
+        //   label: "View",
+        //   onActioned: () => {
+        //     setSelectedChat(msg.chat_details);
+        //     router.push("/chats");
+        //   },
+        // });
+      }
+      console.log({ selectedChat: selectedChat });
+      console.log({ chat_details: msg?.chat_details });
       setAllMessages((prev) => {
         const normalized = normalizeMessage(msg);
         if (!normalized) return prev;
@@ -78,7 +116,7 @@ export default function ChatDetails({ chat }: { chat: Chat }) {
         });
       })
       .catch((err) => console.error("Channel join failed", err));
-  }, [account, chat.id]);
+  }, [account, selectedChat?.id]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -100,14 +138,14 @@ export default function ChatDetails({ chat }: { chat: Chat }) {
     if (!channel || !channelReady) return;
 
     channel
-      .push("new_message", { content: newMessage })
+      .push("new_message", { content: newMessage, chat_details: selectedChat })
       .receive("ok", () => {
         queryClient.invalidateQueries([
           QUERY_KEYS.CHATS,
         ] as InvalidateQueryFilters);
         queryClient.invalidateQueries([
           QUERY_KEYS.CHATS,
-          chat.id,
+          selectedChat?.id,
           QUERY_KEYS.MESSAGES,
         ] as InvalidateQueryFilters);
       })
@@ -130,89 +168,101 @@ export default function ChatDetails({ chat }: { chat: Chat }) {
     }
   };
 
-  const handleInputChange = (value: string) => {
+  function handleInputChange(value: string) {
     setNewMessage(value);
     handleTyping(true);
 
     if (typingTimeout) clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => handleTyping(false), 2500);
-  };
+    typingTimeout = setTimeout(() => handleTyping(false), 4000);
+  }
 
   return (
     <div className="flex flex-col h-full">
       <div className="px-3 pb-3 flex items-start justify-between">
         <div>
-          <p className="font-semibold">{`${chat.user2.first_name} ${chat.user2.last_name}`}</p>
-          <span className="text-grayish">{chat.user2.email}</span>
+          <p className="font-semibold">{`${selectedChat?.user2.first_name} ${selectedChat?.user2.last_name}`}</p>
+          <span className="text-grayish">{selectedChat?.user2.email}</span>
         </div>
         <EllipsisVertical />
       </div>
       <Separator />
 
-      <div className="flex-1 overflow-y-auto px-3">
-        <div ref={messagesContainerRef} className="flex flex-col mt-3 pb-4">
-          {sortedDates.map((dateKey) => (
-            <div key={dateKey} className="mb-4">
-              <div className="flex justify-center mb-3">
-                <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
-                  {formatDateHeader(dateKey)}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2">
-                {groupedMessages[dateKey].map((message) => {
-                  const isCurrentUser = message.sender.id === account?.user.id;
-                  return (
-                    <div
-                      key={message.id}
-                      className={cn(
-                        "flex items-start gap-2",
-                        isCurrentUser ? "flex-row-reverse" : "flex-row",
-                      )}
-                    >
-                      <AppAvatar
-                        size="xsm"
-                        variant={isCurrentUser ? "light" : "dark"}
-                        name={
-                          isCurrentUser
-                            ? `${chat.user1.first_name} ${chat.user1.last_name}`
-                            : `${chat.user2.first_name} ${chat.user2.last_name}`
-                        }
-                      />
+      {isLoading && <MessagesLoader />}
+
+      {!isLoading && allMessages.length === 0 && (
+        <div className="flex flex-col items-center justify-center h-full">
+          <MessageSquareMore size={30} color="#333" />
+          <h1 className="text-[14px] font-bold mt-2 mb-1">No messages yet</h1>
+          <p className="text-gray-500 text-[13px]">
+            Send a message and start the conversation going!
+          </p>
+        </div>
+      )}
+
+      {!isLoading && allMessages.length > 0 && (
+        <div className="flex-1 overflow-y-auto chat-scroll px-3">
+          <div ref={messagesContainerRef} className="flex flex-col mt-3 pb-4">
+            {sortedDates.map((dateKey) => (
+              <div key={dateKey} className="mb-4">
+                <div className="flex justify-center mb-3">
+                  <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                    {formatDateHeader(dateKey)}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {groupedMessages[dateKey].map((message) => {
+                    const isCurrentUser =
+                      message.sender.id === account?.user.id;
+                    return (
                       <div
+                        key={message.id}
                         className={cn(
-                          "flex flex-col max-w-[70%]",
-                          isCurrentUser ? "items-end" : "items-start",
+                          "flex items-start gap-2",
+                          isCurrentUser ? "flex-row-reverse" : "flex-row",
                         )}
                       >
+                        <AppAvatar
+                          size="xsm"
+                          variant={isCurrentUser ? "light" : "dark"}
+                          name={`${message.sender.first_name} ${message.sender.last_name}`}
+                        />
+
                         <div
                           className={cn(
-                            "px-3 py-2 rounded-lg",
-                            isCurrentUser
-                              ? "bg-black/90 text-white rounded-br-sm"
-                              : "bg-gray-100 text-gray-900 rounded-bl-sm",
+                            "flex flex-col max-w-[70%]",
+                            isCurrentUser ? "items-end" : "items-start",
                           )}
                         >
-                          <span>{message.content}</span>
+                          <div
+                            className={cn(
+                              "px-3 py-2 rounded-lg",
+                              isCurrentUser
+                                ? "bg-black/90 text-white rounded-br-sm"
+                                : "bg-gray-100 text-gray-900 rounded-bl-sm",
+                            )}
+                          >
+                            <span>{message.content}</span>
+                          </div>
+                          <span className="text-[10px] text-gray-400 mt-1 px-1">
+                            {new Date(message.inserted_at).toLocaleTimeString(
+                              [],
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-gray-400 mt-1 px-1">
-                          {new Date(message.inserted_at).toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div ref={messagesEndRef} />
         </div>
-        <div ref={messagesEndRef} />
-      </div>
+      )}
 
       <div className="h-5 text-sm text-grayish mt-1 font-medium pl-4 mb-4">
         {typingUsers.length > 0 && (

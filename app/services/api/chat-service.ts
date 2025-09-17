@@ -1,4 +1,9 @@
-import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import client from "../client";
 import { QUERY_KEYS } from "@/app/helpers/constants";
 import { Chat } from "@/app/types/chat";
@@ -15,15 +20,11 @@ export const ChatService = {
     });
   },
 
-  createChat: function () {
-    return useMutation({
+  createChat: function (): UseMutationResult<Chat, unknown, string, unknown> {
+    return useMutation<Chat, unknown, string>({
       mutationFn: async (user2_id: string) => {
-        try {
-          const response = await client.post("/chats", { user2_id });
-          return response.data;
-        } catch (error: _TSFixMe) {
-          throw error;
-        }
+        const response = await client.post("/chats", { user2_id });
+        return response.data;
       },
     });
   },

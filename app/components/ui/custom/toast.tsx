@@ -1,4 +1,8 @@
-import { ErrorToast, SuccessToast } from "@/components/types/toast";
+import {
+  ActionToast,
+  ErrorToast,
+  SuccessToast,
+} from "@/components/types/toast";
 import { toast } from "sonner";
 
 export function successToast({
@@ -29,6 +33,28 @@ export function errorToast({
   });
 
   return successToastId;
+}
+
+export function actionToast({
+  title = "",
+  description,
+  label,
+  position = "top-right",
+  onActioned,
+}: ActionToast) {
+  const toastId = toast(title, {
+    description,
+    action: {
+      label,
+      onClick: () => {
+        onActioned();
+        toast.dismiss(toastId);
+      },
+    },
+    duration: Infinity,
+    position,
+  });
+  return toastId;
 }
 
 type ErrorObject = Record<string, string[] | string | Record<string, _TSFixMe>>;

@@ -9,25 +9,25 @@ import { Fragment } from "react";
 import { Chat } from "@/app/types/chat";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/app/store/auth";
+import { useChatStore } from "@/app/store/chat";
 
-interface ChatListProps {
-  selectedChat: Chat | null;
-  onSelectChat: (chat: Chat) => void;
-}
-
-export default function ChatList({
-  selectedChat,
-  onSelectChat,
-}: ChatListProps) {
+export default function ChatList() {
   const { account } = useAuthStore();
+  const { selectedChat, setSelectedChat } = useChatStore();
+
   const { data: chats, isLoading } = ChatService.listChats();
 
-  console.log({ chats });
-
-  const getOtherUser = (chat: Chat) => {
+  function getOtherUser(chat: Chat) {
     if (!account) return chat.user2;
     return chat.user1.id === account.user.id ? chat.user2 : chat.user1;
-  };
+  }
+
+  function renderName(firstName: string, lastName: string) {
+    if ((firstName + lastName).length > 12) {
+      return firstName + " " + lastName.substring(0, 5) + "...";
+    }
+    return firstName + " " + lastName;
+  }
 
   return (
     <div className="">
@@ -42,7 +42,7 @@ export default function ChatList({
 
             return (
               <div
-                onClick={() => onSelectChat(chat)}
+                onClick={() => setSelectedChat(chat)}
                 key={chat.id}
                 className="cursor-pointer"
               >
@@ -62,10 +62,19 @@ export default function ChatList({
                       />
 
                       <div>
-                        <p className="font-medium">{`${otherUser.first_name} ${otherUser.last_name}`}</p>
-                        {chat.last_message && (
-                          <p className="text-grayish">
+                        <p className="font-medium">
+                          {renderName(
+                            otherUser.first_name,
+                            otherUser.last_name,
+                          )}
+                        </p>
+                        {chat.last_message ? (
+                          <p className="text-grayish text-[13px]">
                             {chat.last_message.content}
+                          </p>
+                        ) : (
+                          <p className="text-grayish italic text-[13px]">
+                            No messages yet
                           </p>
                         )}
                       </div>
