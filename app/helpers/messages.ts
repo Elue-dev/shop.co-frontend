@@ -1,3 +1,4 @@
+import { ChannelMessage } from "../types/chat";
 import { Message } from "../types/message";
 
 export function groupMessagesByDate(messages: Message[]) {
@@ -37,7 +38,7 @@ export function formatDateHeader(dateString: string) {
   });
 }
 
-export function normalizeMessage(msg: _TSFixMe) {
+export function normalizeMessage(msg: _TSFixMe): ChannelMessage {
   const m = msg.data ?? msg;
   return {
     id: m.id,

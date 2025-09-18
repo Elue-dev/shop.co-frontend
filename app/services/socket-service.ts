@@ -1,4 +1,4 @@
-import { Socket } from "phoenix";
+import { Channel, Socket } from "phoenix";
 import Cookies from "js-cookie";
 let socket: Socket | null = null;
 
@@ -21,7 +21,10 @@ export function initSocket() {
   return socket;
 }
 
-export function joinChannel(topic: string, onMessage: (msg: _TSFixMe) => void) {
+export function joinChannel(
+  topic: string,
+  onMessage: (msg: _TSFixMe) => void,
+): Promise<Channel> {
   if (!socket)
     throw new Error("Socket not initialized. Call initSocket first.");
 

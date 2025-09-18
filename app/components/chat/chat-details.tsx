@@ -25,8 +25,10 @@ import { Separator } from "../ui/separator";
 import { actionToast, errorToast, successToast } from "../ui/custom/toast";
 import { useRouter } from "next/navigation";
 import MessagesLoader from "../loaders/messages-loader";
-import { Chat } from "@/app/types/chat";
+import { Chat, TypingUsers } from "@/app/types/chat";
 import AppDropdown from "../ui/custom/app-dropdown";
+import { useChatChannel } from "@/app/hooks/chat-channel";
+import { Channel } from "phoenix";
 
 export default function ChatDetails() {
   const { account } = useAuthStore();
@@ -41,16 +43,26 @@ export default function ChatDetails() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [allMessages, setAllMessages] = useState(messages || []);
   const [newMessage, setNewMessage] = useState("");
-  const [channel, setChannel] = useState<_TSFixMe>(null);
+  const [channel, setChannel] = useState<Channel>();
   const [channelReady, setChannelReady] = useState(false);
   const [pendingMessages, setPendingMessages] = useState<Set<string>>(
     new Set(),
   );
-  const [typingUsers, setTypingUsers] = useState<
-    { id: string; first_name: string }[]
-  >([]);
+  const [typingUsers, setTypingUsers] = useState<TypingUsers>([]);
   const queryClient = useQueryClient();
   let typingTimeout: NodeJS.Timeout;
+
+  useChatChannel({
+    account,
+    selectedChatId: selectedChat?.id,
+    invalidateQueries,
+    setSelectedChat,
+    setChannel,
+    setChannelReady,
+    setTypingUsers,
+    setPendingMessages,
+    setAllMessages,
+  });
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -61,145 +73,6 @@ export default function ChatDetails() {
   useEffect(() => {
     setAllMessages(messages || []);
   }, [messages]);
-
-  useEffect(() => {
-    if (!account) return;
-
-    initSocket();
-
-    joinChannel(`chat:${selectedChat?.id}`, (msg) => {
-      queryClient.invalidateQueries([
-        QUERY_KEYS.CHATS,
-      ] as InvalidateQueryFilters);
-      queryClient.invalidateQueries([
-        QUERY_KEYS.CHATS,
-        selectedChat?.id,
-        QUERY_KEYS.MESSAGES,
-      ] as InvalidateQueryFilters);
-
-      if (msg.data.sender.id !== account.user.id) {
-        // successToast({
-        //   title: `New message from ${msg.data.sender.first_name}`,
-        //   description: `Message: ${msg.data.content}`,
-        // });
-        // actionToast({
-        //   title: `New message from ${msg.data.sender.first_name}`,
-        //   description: `Message: ${msg.data.content}`,
-        //   label: "View",
-        //   onActioned: () => {
-        //     setSelectedChat(msg.chat_details);
-        //     router.push("/chats");
-        //   },
-        // });
-      }
-
-      // console.log({ selectedChat: selectedChat });
-      // console.log({ chat_details: msg?.chat_details });
-      setPendingMessages((prev) => new Set(prev).add(msg.data.id));
-      setAllMessages((prev: _TSFixMe) => {
-        const normalized = normalizeMessage(msg);
-        if (!normalized) return prev;
-        if (prev.some((m: _TSFixMe) => m.id === normalized.id)) return prev;
-        return [...prev, normalized];
-      });
-    })
-      .then((ch: _TSFixMe) => {
-        console.log({ ch });
-        setChannel(ch);
-        setChannelReady(true);
-
-        ch.on("typing", (payload: _TSFixMe) => {
-          setTypingUsers((prev) => {
-            if (payload.typing) {
-              if (!prev.some((u) => u.id === payload.user_id)) {
-                return [
-                  ...prev,
-                  { id: payload.user_id, first_name: payload.first_name },
-                ];
-              }
-            } else {
-              return prev.filter((u) => u.id !== payload.user_id);
-            }
-            return prev;
-          });
-        });
-
-        ch.on("message_confirmed", (payload: _TSFixMe) => {
-          console.log("Message confirmed in database:", payload);
-          setPendingMessages((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(payload.temp_id);
-            return newSet;
-          });
-
-          setAllMessages((prev: _TSFixMe) => {
-            return prev.map((message: _TSFixMe) => {
-              if (message.id === payload.temp_id) {
-                return {
-                  ...message,
-                  id: payload.real_id,
-                };
-              }
-              return message;
-            });
-          });
-        });
-
-        ch.on("message_deleted", (payload: _TSFixMe) => {
-          console.log("Message deleted (optimistic):", payload);
-          setAllMessages((prev: _TSFixMe) => {
-            return prev.map((message: _TSFixMe) => {
-              if (message.id === payload.message_id) {
-                return {
-                  ...message,
-                  is_deleted: true,
-                  deleted_at: payload.deleted_at,
-                  deleted_by: payload.deleted_by,
-                };
-              }
-              return message;
-            });
-          });
-        });
-
-        ch.on("message_delete_failed", (payload: _TSFixMe) => {
-          console.error("Message delete failed, reverting:", payload);
-
-          if (payload.revert) {
-            setAllMessages((prev: _TSFixMe) => {
-              return prev.map((message: _TSFixMe) => {
-                if (message.id === payload.message_id) {
-                  return {
-                    ...message,
-                    is_deleted: false,
-                    deleted_at: null,
-                    deleted_by: null,
-                  };
-                }
-                return message;
-              });
-            });
-          }
-
-          actionToast({
-            title: "Failed to delete message",
-            description:
-              payload.error || "An error occurred while deleting the message",
-            label: "OK",
-            onActioned: () => {},
-          });
-        });
-
-        ch.on("message_delete_confirmed", (payload: _TSFixMe) => {
-          console.log("Message deletion confirmed by database:", payload);
-          // successToast({
-          //   title: "Message deleted",
-          //   description: "Message has been successfully deleted",
-          // });
-        });
-      })
-      .catch((err) => console.error("Channel join failed", err));
-  }, [account, selectedChat?.id]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -216,6 +89,15 @@ export default function ChatDetails() {
     (a, b) => new Date(a).getTime() - new Date(b).getTime(),
   );
 
+  function invalidateQueries() {
+    queryClient.invalidateQueries([QUERY_KEYS.CHATS] as InvalidateQueryFilters);
+    queryClient.invalidateQueries([
+      QUERY_KEYS.CHATS,
+      selectedChat?.id,
+      QUERY_KEYS.MESSAGES,
+    ] as InvalidateQueryFilters);
+  }
+
   const sendMessage = () => {
     if (!newMessage.trim()) return;
     if (!channel || !channelReady) return;
@@ -223,14 +105,7 @@ export default function ChatDetails() {
     channel
       .push("new_message", { content: newMessage, chat_details: selectedChat })
       .receive("ok", () => {
-        queryClient.invalidateQueries([
-          QUERY_KEYS.CHATS,
-        ] as InvalidateQueryFilters);
-        queryClient.invalidateQueries([
-          QUERY_KEYS.CHATS,
-          selectedChat?.id,
-          QUERY_KEYS.MESSAGES,
-        ] as InvalidateQueryFilters);
+        invalidateQueries();
       })
       .receive("error", (resp: _TSFixMe) =>
         console.error("Failed to send message:", resp),
@@ -260,14 +135,10 @@ export default function ChatDetails() {
   }
 
   function deleteMessage(messageId: string) {
-    console.log({ messageId });
     if (!channel || !channelReady) {
-      console.error("Channel not ready");
-      actionToast({
+      errorToast({
         title: "Error",
         description: "Connection not ready. Please try again.",
-        label: "OK",
-        onActioned: () => {},
       });
       return;
     }
@@ -277,15 +148,13 @@ export default function ChatDetails() {
       .receive("ok", (response: _TSFixMe) => {
         console.log("Delete request sent:", response);
       })
-      .receive("error", (resp: _TSFixMe) => {
-        console.error("Failed to delete message:", resp);
+      .receive("error", () => {
         errorToast({
           title: "Error",
           description: "Failed to send delete request",
         });
       })
       .receive("timeout", () => {
-        console.error("Delete message request timed out");
         errorToast({
           title: "Error",
           description: "Delete request timed out",

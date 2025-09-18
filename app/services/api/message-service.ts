@@ -1,12 +1,7 @@
-import {
-  useMutation,
-  UseMutationResult,
-  useQuery,
-  UseQueryResult,
-} from "@tanstack/react-query";
-import client from "../client";
-import { DeleteMessage, Message } from "@/app/types/message";
 import { QUERY_KEYS } from "@/app/helpers/constants";
+import { Message } from "@/app/types/message";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import client from "../client";
 
 export const MessageService = {
   listMessages: function (chat_id: string): UseQueryResult<Message[]> {
