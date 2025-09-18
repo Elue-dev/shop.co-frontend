@@ -14,6 +14,7 @@ import {
   EllipsisVertical,
   MessageCircleMore,
   MessageSquareMore,
+  MoreVertical,
   Send,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -21,10 +22,11 @@ import TextareaAutosize from "react-textarea-autosize";
 import AppAvatar from "../ui/custom/app-avatar";
 import { Button } from "../ui/custom/button";
 import { Separator } from "../ui/separator";
-import { actionToast, successToast } from "../ui/custom/toast";
+import { actionToast, errorToast, successToast } from "../ui/custom/toast";
 import { useRouter } from "next/navigation";
 import MessagesLoader from "../loaders/messages-loader";
 import { Chat } from "@/app/types/chat";
+import AppDropdown from "../ui/custom/app-dropdown";
 
 export default function ChatDetails() {
   const { account } = useAuthStore();
@@ -33,6 +35,7 @@ export default function ChatDetails() {
   const { data: messages, isLoading } = ChatService.listChatMessages(
     selectedChat?.id ?? currentChatId ?? "",
   );
+
   const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -40,6 +43,9 @@ export default function ChatDetails() {
   const [newMessage, setNewMessage] = useState("");
   const [channel, setChannel] = useState<_TSFixMe>(null);
   const [channelReady, setChannelReady] = useState(false);
+  const [pendingMessages, setPendingMessages] = useState<Set<string>>(
+    new Set(),
+  );
   const [typingUsers, setTypingUsers] = useState<
     { id: string; first_name: string }[]
   >([]);
@@ -70,11 +76,12 @@ export default function ChatDetails() {
         selectedChat?.id,
         QUERY_KEYS.MESSAGES,
       ] as InvalidateQueryFilters);
+
       if (msg.data.sender.id !== account.user.id) {
-        successToast({
-          title: `New message from ${msg.data.sender.first_name}`,
-          description: `Message: ${msg.data.content}`,
-        });
+        // successToast({
+        //   title: `New message from ${msg.data.sender.first_name}`,
+        //   description: `Message: ${msg.data.content}`,
+        // });
         // actionToast({
         //   title: `New message from ${msg.data.sender.first_name}`,
         //   description: `Message: ${msg.data.content}`,
@@ -85,12 +92,14 @@ export default function ChatDetails() {
         //   },
         // });
       }
-      console.log({ selectedChat: selectedChat });
-      console.log({ chat_details: msg?.chat_details });
-      setAllMessages((prev) => {
+
+      // console.log({ selectedChat: selectedChat });
+      // console.log({ chat_details: msg?.chat_details });
+      setPendingMessages((prev) => new Set(prev).add(msg.data.id));
+      setAllMessages((prev: _TSFixMe) => {
         const normalized = normalizeMessage(msg);
         if (!normalized) return prev;
-        if (prev.some((m) => m.id === normalized.id)) return prev;
+        if (prev.some((m: _TSFixMe) => m.id === normalized.id)) return prev;
         return [...prev, normalized];
       });
     })
@@ -113,6 +122,80 @@ export default function ChatDetails() {
             }
             return prev;
           });
+        });
+
+        ch.on("message_confirmed", (payload: _TSFixMe) => {
+          console.log("Message confirmed in database:", payload);
+          setPendingMessages((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(payload.temp_id);
+            return newSet;
+          });
+
+          setAllMessages((prev: _TSFixMe) => {
+            return prev.map((message: _TSFixMe) => {
+              if (message.id === payload.temp_id) {
+                return {
+                  ...message,
+                  id: payload.real_id,
+                };
+              }
+              return message;
+            });
+          });
+        });
+
+        ch.on("message_deleted", (payload: _TSFixMe) => {
+          console.log("Message deleted (optimistic):", payload);
+          setAllMessages((prev: _TSFixMe) => {
+            return prev.map((message: _TSFixMe) => {
+              if (message.id === payload.message_id) {
+                return {
+                  ...message,
+                  is_deleted: true,
+                  deleted_at: payload.deleted_at,
+                  deleted_by: payload.deleted_by,
+                };
+              }
+              return message;
+            });
+          });
+        });
+
+        ch.on("message_delete_failed", (payload: _TSFixMe) => {
+          console.error("Message delete failed, reverting:", payload);
+
+          if (payload.revert) {
+            setAllMessages((prev: _TSFixMe) => {
+              return prev.map((message: _TSFixMe) => {
+                if (message.id === payload.message_id) {
+                  return {
+                    ...message,
+                    is_deleted: false,
+                    deleted_at: null,
+                    deleted_by: null,
+                  };
+                }
+                return message;
+              });
+            });
+          }
+
+          actionToast({
+            title: "Failed to delete message",
+            description:
+              payload.error || "An error occurred while deleting the message",
+            label: "OK",
+            onActioned: () => {},
+          });
+        });
+
+        ch.on("message_delete_confirmed", (payload: _TSFixMe) => {
+          console.log("Message deletion confirmed by database:", payload);
+          // successToast({
+          //   title: "Message deleted",
+          //   description: "Message has been successfully deleted",
+          // });
         });
       })
       .catch((err) => console.error("Channel join failed", err));
@@ -176,12 +259,60 @@ export default function ChatDetails() {
     typingTimeout = setTimeout(() => handleTyping(false), 4000);
   }
 
+  function deleteMessage(messageId: string) {
+    console.log({ messageId });
+    if (!channel || !channelReady) {
+      console.error("Channel not ready");
+      actionToast({
+        title: "Error",
+        description: "Connection not ready. Please try again.",
+        label: "OK",
+        onActioned: () => {},
+      });
+      return;
+    }
+
+    channel
+      .push("delete_message", { message_id: messageId })
+      .receive("ok", (response: _TSFixMe) => {
+        console.log("Delete request sent:", response);
+      })
+      .receive("error", (resp: _TSFixMe) => {
+        console.error("Failed to delete message:", resp);
+        errorToast({
+          title: "Error",
+          description: "Failed to send delete request",
+        });
+      })
+      .receive("timeout", () => {
+        console.error("Delete message request timed out");
+        errorToast({
+          title: "Error",
+          description: "Delete request timed out",
+        });
+      });
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="px-3 pb-3 flex items-start justify-between">
         <div>
-          <p className="font-semibold">{`${selectedChat?.user2.first_name} ${selectedChat?.user2.last_name}`}</p>
-          <span className="text-grayish">{selectedChat?.user2.email}</span>
+          {selectedChat &&
+            (() => {
+              const isCurrentUser = selectedChat.user1.id === account?.user.id;
+              const otherUser = isCurrentUser
+                ? selectedChat.user2
+                : selectedChat.user1;
+
+              return (
+                <>
+                  <p className="font-semibold">
+                    {`${otherUser.first_name} ${otherUser.last_name}`}
+                  </p>
+                  <span className="text-grayish">{otherUser.email}</span>
+                </>
+              );
+            })()}
         </div>
         <EllipsisVertical />
       </div>
@@ -205,7 +336,7 @@ export default function ChatDetails() {
             {sortedDates.map((dateKey) => (
               <div key={dateKey} className="mb-4">
                 <div className="flex justify-center mb-3">
-                  <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full">
+                  <span className="bg-gray-100 text-gray-600 text-sm px-3 py-1 rounded-full font-medium">
                     {formatDateHeader(dateKey)}
                   </span>
                 </div>
@@ -213,11 +344,19 @@ export default function ChatDetails() {
                   {groupedMessages[dateKey].map((message) => {
                     const isCurrentUser =
                       message.sender.id === account?.user.id;
+
+                    const messageDropdownItems = [
+                      {
+                        label: "Delete message",
+                        action: () => deleteMessage(message.id),
+                      },
+                    ];
+
                     return (
                       <div
                         key={message.id}
                         className={cn(
-                          "flex items-start gap-2",
+                          "flex items-start gap-2 group",
                           isCurrentUser ? "flex-row-reverse" : "flex-row",
                         )}
                       >
@@ -226,13 +365,29 @@ export default function ChatDetails() {
                           variant={isCurrentUser ? "light" : "dark"}
                           name={`${message.sender.first_name} ${message.sender.last_name}`}
                         />
-
                         <div
                           className={cn(
-                            "flex flex-col max-w-[70%]",
+                            "flex flex-col max-w-[70%] relative",
                             isCurrentUser ? "items-end" : "items-start",
                           )}
                         >
+                          {!message.is_deleted &&
+                            !pendingMessages.has(message.id) &&
+                            message.sender.id === account?.user.id && (
+                              <div
+                                className={cn(
+                                  "absolute top-0 opacity-0 group-hover:opacity-100 transition-opacity z-10",
+                                  isCurrentUser
+                                    ? "left-0 -translate-x-8"
+                                    : "right-0 translate-x-8",
+                                )}
+                              >
+                                <AppDropdown items={messageDropdownItems}>
+                                  <MoreVertical className="w-4 h-4 text-gray-500 cursor-pointer" />
+                                </AppDropdown>
+                              </div>
+                            )}
+
                           <div
                             className={cn(
                               "px-3 py-2 rounded-lg",
@@ -241,7 +396,20 @@ export default function ChatDetails() {
                                 : "bg-gray-100 text-gray-900 rounded-bl-sm",
                             )}
                           >
-                            <span>{message.content}</span>
+                            <span
+                              className={cn(
+                                message.is_deleted && "italic",
+                                message.is_deleted
+                                  ? isCurrentUser
+                                    ? "text-gray-300"
+                                    : "text-grayish"
+                                  : "",
+                              )}
+                            >
+                              {message.is_deleted
+                                ? "This message was deleted"
+                                : message.content}
+                            </span>
                           </div>
                           <span className="text-[10px] text-gray-400 mt-1 px-1">
                             {new Date(message.inserted_at).toLocaleTimeString(

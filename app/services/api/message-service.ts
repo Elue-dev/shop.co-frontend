@@ -1,6 +1,11 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  UseQueryResult,
+} from "@tanstack/react-query";
 import client from "../client";
-import { Message } from "@/app/types/message";
+import { DeleteMessage, Message } from "@/app/types/message";
 import { QUERY_KEYS } from "@/app/helpers/constants";
 
 export const MessageService = {
@@ -11,13 +16,6 @@ export const MessageService = {
         const response = await client.get(`/chats/${chat_id}/messages`);
         return response.data;
       },
-    });
-  },
-
-  sendMessage: async (chatId: string, message: string) => {
-    return client.post(`/chats/message`, {
-      chat_id: chatId,
-      content: message,
     });
   },
 };

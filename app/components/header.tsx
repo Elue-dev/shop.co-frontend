@@ -47,7 +47,7 @@ export default function Header() {
   const dropdownItems = [
     {
       label: "Chats",
-      icon: <MessageSquareText />,
+      icon: <MessageSquareText className="text-black" />,
       action: () => router.push("/chats"),
     },
     {

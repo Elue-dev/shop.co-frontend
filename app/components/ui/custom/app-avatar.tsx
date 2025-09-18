@@ -33,14 +33,18 @@ export default function AppAvatar({
     <Avatar
       className={cn(
         "bg-gray300",
-        size === "xsm" ? "w-6 h-6" : size === "sm" ? "w-9 h-9" : "w-12 h-12",
+        size === "xsm" ? "w-6 h-6" : size === "sm" ? "w-8 h-8" : "w-12 h-12",
         classNames,
       )}
     >
       <AvatarImage src={source} />
       <AvatarFallback
         className={cn(
-          size === "xsm" ? "text-[12px] font-medium" : "text-lg font-bold",
+          size === "xsm"
+            ? "text-[12px] font-medium"
+            : size === "sm"
+              ? "text-base font-bold"
+              : "text-lg font-bold",
           variant === "dark"
             ? "bg-black text-gray300"
             : "bg-gray300 text-black",

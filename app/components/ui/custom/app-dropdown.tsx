@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface DropdownItem {
   label: string;
@@ -25,6 +26,8 @@ export default function AppDropdown({
   header,
   items,
 }: DropdownProps) {
+  const dangerKeywords = ["Delete", "Logout"];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="cursor-pointer">
@@ -48,7 +51,15 @@ export default function AppDropdown({
             className="cursor-pointer"
           >
             {item.icon && item.icon}
-            {item.label}
+            <p
+              className={cn(
+                dangerKeywords.some((keyword) => item.label.includes(keyword))
+                  ? "text-[#fb2c36] font-medium"
+                  : "",
+              )}
+            >
+              {item.label}
+            </p>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

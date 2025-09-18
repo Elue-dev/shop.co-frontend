@@ -31,7 +31,10 @@ export default function ChatList() {
 
   return (
     <div className="">
-      <LargeTitle text={`Chats (${chats?.length || 0})`} />
+      <LargeTitle
+        text={`Chats (${chats?.length || 0})`}
+        classNames="text-[20px]"
+      />
 
       {isLoading ? (
         <ChatListLoader />

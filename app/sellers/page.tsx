@@ -10,7 +10,9 @@ import { ChatService } from "../services/api/chat-service";
 import { useRouter } from "next/navigation";
 import AppAvatar from "../components/ui/custom/app-avatar";
 import { useChatStore } from "../store/chat";
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { InvalidateQueryFilters, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../helpers/constants";
 
 export default function Sellers() {
   const router = useRouter();
@@ -18,11 +20,15 @@ export default function Sellers() {
   const { data: sellers, isLoading } = AccountsService.listSellers();
   const { mutate: startChat, isPending } = ChatService.createChat();
   const [loadingSellerId, setLoadingSellerId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   function createChat(userId: string) {
     setLoadingSellerId(userId);
     startChat(userId, {
       onSuccess: function (data) {
+        queryClient.invalidateQueries([
+          QUERY_KEYS.CHATS,
+        ] as InvalidateQueryFilters);
         setSelectedChat(data);
         router.push("/chats");
       },
@@ -61,10 +67,10 @@ export default function Sellers() {
                     classNames="mt-4"
                     auto
                   >
-                    <>
+                    <Fragment>
                       <MessageSquareMore />
                       <span>Chat with seller</span>
-                    </>
+                    </Fragment>
                   </Button>
                 </div>
               </AppCard>
