@@ -68,7 +68,7 @@ export default function Login() {
           validator={validators.password}
         />
 
-        <Button label="Login" isLoading={isLoading} />
+        <Button label="Login" isLoading={isLoading} classNames="py-[26px]" />
       </form>
 
       <Link href="/auth/register">

@@ -40,7 +40,7 @@ export function Button({
     <ShadButton
       onClick={disabled || isLoading ? () => {} : () => onClick?.()}
       className={cn(
-        "bg-black hover:bg-black/90 text-white font-bold py-[26px] rounded-full cursor-pointer w-full",
+        "bg-black hover:bg-black/90 text-white font-bold py-6 rounded-full cursor-pointer w-full",
         disabled && "opacity-50 cursor-not-allowed",
         small && "w-[200px]",
         auto && "w-auto",

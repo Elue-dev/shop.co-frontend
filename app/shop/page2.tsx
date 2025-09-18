@@ -9,7 +9,7 @@ import { Button } from "../components/ui/custom/button";
 import { ProductFilters } from "../types/product";
 import { LargeTitle } from "../components/ui/custom/large-title";
 
-export default function ProductsPage() {
+export default function ProductsPage2() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filters = getFiltersFromParams(searchParams);

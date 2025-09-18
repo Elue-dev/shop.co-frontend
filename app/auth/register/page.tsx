@@ -112,7 +112,7 @@ export default function Register() {
           ]}
         />
 
-        <Button label="Register" isLoading={isLoading} />
+        <Button label="Register" isLoading={isLoading} classNames="py-[26px]" />
       </form>
 
       <Link href="/auth/login">

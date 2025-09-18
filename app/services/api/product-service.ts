@@ -2,6 +2,7 @@ import {
   ProductResponse,
   ProductFilters,
   DressStyle,
+  Category,
 } from "@/app/types/product";
 import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import client from "../client";
@@ -25,6 +26,16 @@ export const ProductService = {
       queryKey: [QUERY_KEYS.DRESS_STYLE],
       queryFn: async function () {
         const response = await client.get("/products/dress-styles");
+        return response.data;
+      },
+    });
+  },
+
+  listCategories: function (): UseQueryResult<Category[]> {
+    return useQuery<Category[]>({
+      queryKey: [QUERY_KEYS.CATEGORIES],
+      queryFn: async function () {
+        const response = await client.get("/products/categories");
         return response.data;
       },
     });

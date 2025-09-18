@@ -68,7 +68,7 @@ export default function Header() {
           </Link>
 
           <div className="flex items-center space-x-6">
-            <Link href="/products">Shop</Link>
+            <Link href="/shop">Shop</Link>
             <Link href="/sellers">Sellers</Link>
           </div>
         </div>

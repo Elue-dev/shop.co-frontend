@@ -55,7 +55,7 @@ export default function Activate() {
           validator={validators.minLength(6, "OTP")}
         />
 
-        <Button label="Proceed" isLoading={isLoading} />
+        <Button label="Proceed" isLoading={isLoading} classNames="py-[26px]" />
       </form>
     </section>
   );

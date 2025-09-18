@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import MessagesLoader from "../loaders/messages-loader";
 import { Chat, TypingUsers } from "@/app/types/chat";
 import AppDropdown from "../ui/custom/app-dropdown";
-import { useChatChannel } from "@/app/hooks/chat-channel";
+import { useChatChannel } from "@/app/hooks/use-chat-channel";
 import { Channel } from "phoenix";
 
 export default function ChatDetails() {

@@ -40,7 +40,7 @@ export interface ChatChannelOptions {
   setChannelReady: (ready: boolean) => void;
   setTypingUsers: React.Dispatch<React.SetStateAction<TypingUsers>>;
   setPendingMessages: React.Dispatch<React.SetStateAction<Set<string>>>;
-  setAllMessages: React.Dispatch<React.SetStateAction<ChannelMessage[]>>;
+  setAllMessages: React.Dispatch<React.SetStateAction<_TSFixMe[]>>;
 }
 
 export interface ChannelMessage {

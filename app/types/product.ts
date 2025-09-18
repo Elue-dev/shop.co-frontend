@@ -1,3 +1,5 @@
+import { sizes } from "../helpers/constants";
+
 export interface ProductResponse {
   data: Product[];
   pagination: Pagination;
@@ -45,3 +47,16 @@ export interface DressStyle {
   name: string;
   updated_at: string;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export type SizeKey = (typeof sizes)[number];
+
+export type ShopFilters = {
+  category: string;
+  size: SizeKey | "";
+  dress_style: string;
+};
