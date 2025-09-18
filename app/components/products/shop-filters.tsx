@@ -1,4 +1,4 @@
-import { ChevronRight, SlidersHorizontal } from "lucide-react";
+import { ChevronRight, SlidersHorizontal, X } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { ProductService } from "@/app/services/api/product-service";
 import { Fragment, useState } from "react";
@@ -9,9 +9,15 @@ import { PRICE_RANGES, SIZES_MAP, sizes } from "@/app/helpers/constants";
 import { Button } from "../ui/custom/button";
 import FiltersLoader from "../loaders/filters-loader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShopFilters } from "@/app/types/product";
+import { ShopFilter } from "@/app/types/product";
 
-export default function ProductFilters() {
+const initialFilters = {
+  category: "",
+  size: "",
+  dress_style: "",
+} as const;
+
+export default function ShopFilters() {
   const { data: categories, isLoading: categoryLoading } =
     ProductService.listCategories();
   const { data: dressStyles, isLoading: dressStyleloading } =
@@ -27,16 +33,12 @@ export default function ProductFilters() {
   const [isSizeSectionOpen, setIsSizeSectionOpen] = useState(true);
   const [isDressSectionOpen, setIsDressSectionOpen] = useState(true);
 
-  const [filters, setFilters] = useState<ShopFilters>({
-    category: "",
-    size: "",
-    dress_style: "",
-  });
+  const [filters, setFilters] = useState<ShopFilter>(initialFilters);
 
   function handleSetFilters(filter: keyof typeof filters, value: string) {
     setFilters((prev) => ({
       ...prev,
-      [filter]: value,
+      [filter]: prev[filter] === value ? "" : value,
     }));
   }
 
@@ -60,12 +62,32 @@ export default function ProductFilters() {
     router.push(`?${params.toString()}`);
   }
 
+  function clearFilters() {
+    setFilters(initialFilters);
+    setPriceRange([PRICE_RANGES.min, PRICE_RANGES.max]);
+
+    const params = new URLSearchParams();
+    router.push(`?${params.toString()}`);
+  }
+
   return (
     <section>
       <div className="border border-black/10 rounded-[20px] p-4">
-        <div className="flex justify-between mb-4">
-          <p className="font-semibold text-base">Filters</p>
-          <SlidersHorizontal className="text-black/40" />
+        <div className="flex justify-between items-center mb-4">
+          <p className="font-semibold text-base ">Filters</p>
+          <div>
+            {searchParams.size > 0 ? (
+              <div
+                onClick={clearFilters}
+                className="flex items-center cursor-pointer"
+              >
+                <X size={10} />
+                <p className="text-[12px] font-medium">Clear filters</p>
+              </div>
+            ) : (
+              <SlidersHorizontal size={18} className="text-black/40" />
+            )}
+          </div>
         </div>
         <Separator />
 

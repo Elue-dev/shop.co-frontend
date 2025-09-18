@@ -5,7 +5,7 @@ interface StarRatingProps {
   size?: number;
 }
 
-export default function StarRating({ rating, size = 20 }: StarRatingProps) {
+export default function StarRating({ rating, size = 15 }: StarRatingProps) {
   return (
     <div className="flex items-center gap-1">
       {Array.from({ length: 5 }, (_, i) => {

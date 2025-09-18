@@ -9,8 +9,10 @@ export interface Product {
   avg_rating: number;
   category_id: string;
   description: string;
-  discount_price: number;
+  percentage_discount: number;
   dress_style_id: string;
+  discounted_price: number;
+  has_discount: boolean;
   id: string;
   images: string[];
   is_active: boolean;
@@ -26,7 +28,7 @@ export interface Pagination {
   prev: string;
 }
 
-export interface ProductFilters {
+export interface ProductFilter {
   limit?: number;
   next?: string;
   prev?: string;
@@ -55,7 +57,7 @@ export interface Category {
 
 export type SizeKey = (typeof sizes)[number];
 
-export type ShopFilters = {
+export type ShopFilter = {
   category: string;
   size: SizeKey | "";
   dress_style: string;

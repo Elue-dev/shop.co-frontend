@@ -34,7 +34,7 @@ export default function Header() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
     }
   }
 
