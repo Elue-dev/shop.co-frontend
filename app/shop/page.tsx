@@ -34,7 +34,7 @@ export default function ShopPage() {
           <ShopFilters />
         </div>
 
-        <div className="w-[80%]">
+        <div className="w-[80%] ml-3">
           {isLoading ? (
             <ProductSkeleton iteration={3} />
           ) : products?.data?.length === 0 ? (

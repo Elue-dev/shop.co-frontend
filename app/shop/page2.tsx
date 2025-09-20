@@ -6,7 +6,7 @@ import ProductSkeleton from "../components/loaders/product-skeleton";
 import ProductCard from "../components/products/product-card";
 import AppSelect from "../components/ui/custom/select";
 import { Button } from "../components/ui/custom/button";
-import { ProductFilters } from "../types/product";
+import { ProductFilter } from "../types/product";
 import { LargeTitle } from "../components/ui/custom/large-title";
 
 export default function ProductsPage2() {
@@ -14,8 +14,8 @@ export default function ProductsPage2() {
   const searchParams = useSearchParams();
   const filters = getFiltersFromParams(searchParams);
 
-  function getFiltersFromParams(searchParams: URLSearchParams): ProductFilters {
-    const filters: ProductFilters = {};
+  function getFiltersFromParams(searchParams: URLSearchParams): ProductFilter {
+    const filters: ProductFilter = {};
 
     searchParams.forEach((value, key) => {
       if (key in filters || true) {

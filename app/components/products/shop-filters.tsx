@@ -53,10 +53,7 @@ export default function ShopFilters() {
     if (filters.size) {
       params.set("size", SIZES_MAP[filters.size]);
     }
-    if (
-      priceRange[0] !== PRICE_RANGES.min &&
-      priceRange[0] !== PRICE_RANGES.max
-    )
+    if (priceRange[0] > PRICE_RANGES.min && priceRange[1] < PRICE_RANGES.max)
       params.set("price_range", `${priceRange[0]}-${priceRange[1]}`);
 
     router.push(`?${params.toString()}`);

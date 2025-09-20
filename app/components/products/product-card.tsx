@@ -6,7 +6,7 @@ import { Fragment } from "react";
 
 export default function ProductCard({ product }: { product: Product }) {
   return (
-    <Link href={`/shop/product/${product.id}`}>
+    <Link href={`/shop/products/${product.id}`}>
       <Image
         src={product.images[0]}
         alt={product.name}
