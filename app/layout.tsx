@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { TanstackProvider } from "@/components/providers/tanstack-provider";
 import { Toaster } from "sonner";
 import Header from "./components/header";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Shop.co",
@@ -20,14 +21,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`antialiased`}>
-        <TanstackProvider>
-          <AuthProvider>
-            <Toaster richColors />
-            <Header />
-
-            {children}
-          </AuthProvider>
-        </TanstackProvider>
+        <Suspense>
+          <TanstackProvider>
+            <AuthProvider>
+              <Toaster richColors />
+              <Header />
+              {children}
+            </AuthProvider>
+          </TanstackProvider>
+        </Suspense>
       </body>
     </html>
   );
