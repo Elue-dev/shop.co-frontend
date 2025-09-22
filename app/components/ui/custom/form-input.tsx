@@ -52,7 +52,7 @@ const FormInput: React.FC<FormInputProps> = ({
             placeholder={placeholder}
             disabled={disabled}
             className={cn(
-              "px-3 py-3 rounded-md bg-[#f8f8f8] min-w-[400px] outline-0",
+              "px-3 py-3 rounded-md bg-[#f8f8f8] w-[100%] md:min-w-[400px] outline-0",
               field.state.meta.errors.length > 0 &&
                 "border border-red-500 focus:border-red-500",
               disabled && "bg-gray-100 cursor-not-allowed",

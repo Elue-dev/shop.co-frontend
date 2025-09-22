@@ -32,7 +32,7 @@ export default function Activate() {
   });
 
   return (
-    <section>
+    <section className="w-full md:w-auto">
       <div className="flex flex-col items-center justify-center mb-6">
         <Image src={Logo} alt="Logo" className="mb-2" />
         <p>Activate your account</p>
