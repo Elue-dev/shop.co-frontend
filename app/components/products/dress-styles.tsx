@@ -4,9 +4,15 @@ import { cn } from "@/lib/utils";
 import DressStyleSkeleton from "../loaders/dress-style-skeleton";
 import Link from "next/link";
 import { LargeTitle } from "../ui/custom/large-title";
+import ApiError from "../api-error";
 
 export default function DressStyles() {
-  const { data: dressStyles, isLoading } = ProductService.listDressStyles();
+  const {
+    data: dressStyles,
+    isLoading,
+    isError,
+    refetch,
+  } = ProductService.listDressStyles();
 
   const topRow = dressStyles?.slice(0, 2) || [];
   const bottomRow = dressStyles?.slice(2, 4) || [];
@@ -21,6 +27,8 @@ export default function DressStyles() {
 
       {isLoading ? (
         <DressStyleSkeleton />
+      ) : isError ? (
+        <ApiError message="Error loading dress styles" refetch={refetch} />
       ) : (
         <div className="space-y-6 mt-14">
           <div className="grid grid-cols-5 gap-6">

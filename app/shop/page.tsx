@@ -7,12 +7,18 @@ import { ProductService } from "../services/api/product-service";
 import { ProductFilter } from "../types/product";
 import ProductSkeleton from "../components/loaders/product-skeleton";
 import ProductCard from "../components/products/product-card";
+import ApiError from "../components/api-error";
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const filters = getFiltersFromParams(searchParams);
 
-  const { data: products, isLoading } = ProductService.listProducts(filters);
+  const {
+    data: products,
+    isLoading,
+    isError,
+    refetch,
+  } = ProductService.listProducts(filters);
 
   function getFiltersFromParams(searchParams: URLSearchParams): ProductFilter {
     const filters: ProductFilter = {};
@@ -37,6 +43,8 @@ export default function ShopPage() {
         <div className="w-[80%] ml-3">
           {isLoading ? (
             <ProductSkeleton iteration={3} />
+          ) : isError ? (
+            <ApiError message="Error loading products" refetch={refetch} />
           ) : products?.data?.length === 0 ? (
             <div>
               <p className="text-center">

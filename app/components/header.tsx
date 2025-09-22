@@ -14,6 +14,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "../store/auth";
 import AppDropdown from "./ui/custom/app-dropdown";
+import { Button } from "./ui/custom/button";
 
 export default function Header() {
   const router = useRouter();
@@ -81,23 +82,31 @@ export default function Header() {
           />
         </form>
 
-        <div className="flex items-center gap-4">
-          <Link href="/cart">
-            <ShoppingCart />
+        {!account && (
+          <Link href="/auth/login">
+            <Button label="Login" auto classNames="py-5 w-[100px]" />
           </Link>
+        )}
 
-          <AppDropdown
-            header={
-              <div>
-                <p className="font-medium">{account?.user.full_name}</p>
-                <p className="text-sm text-grayish">{account?.user.email}</p>
-              </div>
-            }
-            items={dropdownItems}
-          >
-            <CircleUser />
-          </AppDropdown>
-        </div>
+        {account && (
+          <div className="flex items-center gap-4">
+            <Link href="/cart">
+              <ShoppingCart />
+            </Link>
+
+            <AppDropdown
+              header={
+                <div>
+                  <p className="font-medium">{account?.user.full_name}</p>
+                  <p className="text-sm text-grayish">{account?.user.email}</p>
+                </div>
+              }
+              items={dropdownItems}
+            >
+              <CircleUser />
+            </AppDropdown>
+          </div>
+        )}
       </div>
     </header>
   );
