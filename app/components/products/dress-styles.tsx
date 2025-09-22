@@ -26,7 +26,7 @@ export default function DressStyles() {
           <div className="grid grid-cols-5 gap-6">
             {topRow.map((style, index) => (
               <Link
-                href={`/products?dress_style=${style.name}`}
+                href={`/shop?dress_style=${style.name}`}
                 key={style.id}
                 className={cn(
                   "relative group cursor-pointer rounded-[20px] overflow-hidden bg-white h-[300px] transition-transform duration-300 hover:scale-[1.02]",
@@ -54,7 +54,7 @@ export default function DressStyles() {
           <div className="grid grid-cols-3 gap-6">
             {bottomRow.map((style, index) => (
               <Link
-                href={`/products?dress_style=${style.name.toLowerCase()}`}
+                href={`/shop?dress_style=${style.name.toLowerCase()}`}
                 key={style.id}
                 className={cn(
                   "relative group cursor-pointer rounded-[20px] overflow-hidden bg-white h-[300px] transition-transform duration-300 hover:scale-[1.02]",

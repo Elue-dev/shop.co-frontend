@@ -20,7 +20,7 @@ export default function SearchInput({
     <section>
       <div
         className={cn(
-          "flex items-center justify-center w-[450px] bg-[#f8f8f8] border-0 rounded-full py-1",
+          " hidden md:flex items-center justify-center md:w-[450px]  bg-[#f8f8f8] border-0 rounded-full py-1",
           classNames,
         )}
       >

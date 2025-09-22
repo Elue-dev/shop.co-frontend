@@ -3,6 +3,7 @@
 import { Dispatch, SetStateAction } from "react";
 import { Slider } from "@/app/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { PRICE_RANGES } from "@/app/helpers/constants";
 
 interface SliderProps {
   value: number[];
@@ -17,7 +18,13 @@ export default function RangeSlider({
 }: SliderProps) {
   return (
     <div className={cn("w-full space-y-3 cursor-pointer", classNames)}>
-      <Slider value={value} onValueChange={setValue} max={100} step={1} />
+      <Slider
+        value={value}
+        onValueChange={setValue}
+        min={PRICE_RANGES.min}
+        max={PRICE_RANGES.max}
+        step={2}
+      />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span className="text-black text-[13px] font-medium">${value[0]}</span>
         <span className="text-black text-[13px] font-medium">

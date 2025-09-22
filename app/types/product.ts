@@ -45,8 +45,8 @@ export interface DressStyle {
   cover_photo: string;
   description: string;
   id: string;
-  inserted_at: string;
   name: string;
+  inserted_at: string;
   updated_at: string;
 }
 
@@ -59,6 +59,31 @@ export type SizeKey = (typeof sizes)[number];
 
 export type ShopFilter = {
   category: string;
-  size: SizeKey | "";
+  size: SizeKey | string;
   dress_style: string;
 };
+
+export interface ReviewResponse {
+  data: Review[];
+  pagination: Pagination;
+}
+
+export type Review = {
+  comment: string;
+  helpful_count: number;
+  id: string;
+  rating: number;
+  title: string;
+  user: {
+    first_name: string;
+    last_name: string;
+  };
+  inserted_at: string;
+  updated_at: string;
+};
+
+export interface ReviewFilter {
+  limit?: number;
+  next?: string;
+  prev?: string;
+}

@@ -5,13 +5,19 @@ import { ChatService } from "@/app/services/api/chat-service";
 import AppAvatar from "@/app/components/ui/custom/app-avatar";
 import { LargeTitle } from "@/app/components/ui/custom/large-title";
 import ChatListLoader from "../loaders/chat-list-loader";
-import { Fragment } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { Chat } from "@/app/types/chat";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/app/store/auth";
 import { useChatStore } from "@/app/store/chat";
 
-export default function ChatList() {
+export default function ChatList({
+  sidebarOpen,
+  setSidebarOpen,
+}: {
+  sidebarOpen: boolean;
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+}) {
   const { account } = useAuthStore();
   const { selectedChat, setSelectedChat } = useChatStore();
 
@@ -30,7 +36,7 @@ export default function ChatList() {
   }
 
   return (
-    <div className="">
+    <div className={cn(sidebarOpen ? "pt-14 pl-3" : "")}>
       <LargeTitle
         text={`Chats (${chats?.length || 0})`}
         classNames="text-[20px]"
@@ -45,7 +51,10 @@ export default function ChatList() {
 
             return (
               <div
-                onClick={() => setSelectedChat(chat)}
+                onClick={() => {
+                  setSelectedChat(chat);
+                  setSidebarOpen(false);
+                }}
                 key={chat.id}
                 className="cursor-pointer"
               >

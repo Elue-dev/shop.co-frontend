@@ -63,7 +63,7 @@ export function responseErrorInterceptor(
       case 401:
         if (
           typeof data === "object" &&
-          (data as _TSFixMe).error === "invalid_token"
+          ["invalid_token"].includes((data as _TSFixMe).error)
         ) {
           Cookies.remove("access_token");
           if (typeof window !== "undefined") {

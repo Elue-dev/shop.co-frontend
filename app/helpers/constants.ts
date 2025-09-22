@@ -3,6 +3,7 @@ export enum QUERY_KEYS {
   PRODUCTS = "products",
   CHATS = "chats",
   MESSAGES = "messages",
+  REVIEWS = "reviews",
   DRESS_STYLE = "dress-style",
   CATEGORIES = "categories",
 }

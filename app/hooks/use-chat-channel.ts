@@ -1,7 +1,7 @@
 import { normalizeMessage } from "@/app/helpers/messages";
 import { initSocket, joinChannel } from "@/app/services/socket-service";
 import { useEffect } from "react";
-import { actionToast } from "../components/ui/custom/toast";
+import { actionToast, successToast } from "../components/ui/custom/toast";
 import { ChannelMessageData, ChatChannelOptions } from "../types/chat";
 
 export function useChatChannel({
@@ -57,6 +57,9 @@ export function useChatChannel({
         });
 
         ch.on("message_confirmed", (payload) => {
+          successToast({
+            description: "confirmed in db",
+          });
           setPendingMessages((prev) => {
             const newSet = new Set(prev);
             newSet.delete(payload.temp_id);

@@ -10,10 +10,9 @@ export function getInitials(name: string) {
 }
 
 export function formatTimestamp(timestamp: string) {
-  const date = parseISO(timestamp); // convert ISO string to Date
+  const date = parseISO(timestamp);
 
   if (isToday(date)) {
-    // Show just the time: 15:53
     return format(date, "HH:mm");
   }
 
@@ -22,10 +21,13 @@ export function formatTimestamp(timestamp: string) {
   }
 
   if (isThisWeek(date)) {
-    // Show weekday: Monday, Tuesday, etc.
     return format(date, "EEEE");
   }
 
-  // Otherwise, show date: 16 Sep 2025
   return format(date, "dd MMM yyyy");
+}
+
+export function formatDateShort(timestamp: string) {
+  const date = new Date(timestamp);
+  return format(date, "MMMM d, yyyy");
 }

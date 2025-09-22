@@ -9,13 +9,7 @@ import { PRICE_RANGES, SIZES_MAP, sizes } from "@/app/helpers/constants";
 import { Button } from "../ui/custom/button";
 import FiltersLoader from "../loaders/filters-loader";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShopFilter } from "@/app/types/product";
-
-const initialFilters = {
-  category: "",
-  size: "",
-  dress_style: "",
-} as const;
+import { ShopFilter, SizeKey } from "@/app/types/product";
 
 export default function ShopFilters() {
   const { data: categories, isLoading: categoryLoading } =
@@ -32,6 +26,12 @@ export default function ShopFilters() {
   const [isPriceSectionOpen, setIsPriceSectionOpen] = useState(true);
   const [isSizeSectionOpen, setIsSizeSectionOpen] = useState(true);
   const [isDressSectionOpen, setIsDressSectionOpen] = useState(true);
+
+  const initialFilters = {
+    category: searchParams.get("category") || "",
+    size: searchParams.get("size") || "",
+    dress_style: searchParams.get("dress_style") || "",
+  };
 
   const [filters, setFilters] = useState<ShopFilter>(initialFilters);
 
@@ -51,9 +51,9 @@ export default function ShopFilters() {
       params.set("dress_style", filters.dress_style);
     }
     if (filters.size) {
-      params.set("size", SIZES_MAP[filters.size]);
+      params.set("size", SIZES_MAP[filters.size as SizeKey]);
     }
-    if (priceRange[0] > PRICE_RANGES.min && priceRange[1] < PRICE_RANGES.max)
+    if (priceRange[0] > PRICE_RANGES.min || priceRange[1] < PRICE_RANGES.max)
       params.set("price_range", `${priceRange[0]}-${priceRange[1]}`);
 
     router.push(`?${params.toString()}`);
@@ -94,11 +94,14 @@ export default function ShopFilters() {
           ) : (
             <Fragment>
               {categories?.map((category) => {
-                const isActive = filters.category === category.name;
+                const isActive =
+                  filters.category === category.name.toLowerCase();
                 return (
                   <motion.div
                     key={category.id}
-                    onClick={() => handleSetFilters("category", category.name)}
+                    onClick={() =>
+                      handleSetFilters("category", category.name.toLowerCase())
+                    }
                     className={cn(
                       "flex items-center justify-between mb-3 cursor-pointer",
                       isActive && "py-[5px] pl-2 rounded-lg",
@@ -239,11 +242,15 @@ export default function ShopFilters() {
                   <FiltersLoader />
                 ) : (
                   dressStyles?.map((style) => {
-                    const isActive = filters.dress_style === style.name;
+                    const isActive =
+                      filters.dress_style === style.name.toLowerCase();
                     return (
                       <motion.div
                         onClick={() =>
-                          handleSetFilters("dress_style", style.name)
+                          handleSetFilters(
+                            "dress_style",
+                            style.name.toLowerCase(),
+                          )
                         }
                         key={style.id}
                         whileTap={{ scale: 0.97 }}
@@ -253,8 +260,7 @@ export default function ShopFilters() {
                         transition={{ duration: 0.25 }}
                         className={cn(
                           "flex items-center justify-between mb-3 cursor-pointer",
-                          filters.dress_style === style.name &&
-                            "bg-gray-100 py-[5px] pl-2 rounded-lg",
+                          isActive && "py-[5px] pl-2 rounded-lg",
                         )}
                       >
                         <p className="text-black/60 text-sm">{style.name}</p>

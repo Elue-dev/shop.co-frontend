@@ -11,6 +11,7 @@ type ButtonBaseProps = {
   small?: boolean;
   auto?: boolean;
   inverted?: boolean;
+  transparent?: boolean;
 };
 
 type ButtonWithLabel = ButtonBaseProps & {
@@ -35,6 +36,7 @@ export function Button({
   small,
   auto,
   inverted,
+  transparent,
 }: ButtonProps) {
   return (
     <ShadButton
@@ -45,6 +47,8 @@ export function Button({
         small && "w-[200px]",
         auto && "w-auto",
         inverted && "bg-[#f8f8f8] text-black hover:bg-gray-200/70",
+        transparent &&
+          "bg-transparent text-black hover:bg-gray-200/70 border border-black/60",
         classNames,
       )}
     >

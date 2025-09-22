@@ -11,44 +11,82 @@ import { cn } from "@/lib/utils";
 import QuantitySelector from "@/app/components/products/quantity-selector";
 import { Separator } from "@/app/components/ui/separator";
 import { Button } from "@/app/components/ui/custom/button";
+import { ReviewService } from "@/app/services/api/review-service";
+import ProductReviews from "@/app/components/products/product-reviews";
+import AppBreadCrumb from "@/app/components/ui/custom/app-breadcrumb";
+import { ReviewFilter } from "@/app/types/product";
 
 export default function ProductDetails() {
   const params = useParams<{ id: string }>();
+  const [filters, setFilters] = useState<ReviewFilter>({});
   const { data: product, isLoading } = ProductService.getProduct(params.id);
+  const {
+    data: reviews,
+    isLoading: reviewsLoading,
+    isFetching,
+  } = ReviewService.useListProductReviews(params.id, filters);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
 
   return (
     <section className="app-container mt-12">
-      <div>
-        {isLoading ? (
+      <AppBreadCrumb
+        items={[{ name: "Shop", link: "/shop" }, { name: "Product details" }]}
+      />
+      <div className="mt-6">
+        {isLoading || reviewsLoading ? (
           <ProductDetailsLoader />
         ) : (
           <div>
             <div className="flex gap-8">
-              <div className="basis-1/2 flex">
-                <div className="w-[20%]">
+              <div className="basis-1/2 flex gap-3">
+                <div className="w-[20%] flex flex-col gap-3 h-[380px]">
                   {product?.images.map((img, index) => (
-                    <Image
-                      onClick={() => setCurrentImageIndex(index)}
+                    <motion.div
                       key={img}
-                      src={img}
-                      alt="product image"
-                      width={100}
-                      height={110}
-                      className="max-h-[90px] min-h-[90px] cursor-pointer mb-3 rounded-[20px]"
-                    />
+                      className="flex-1 relative cursor-pointer"
+                      whileTap={{ scale: 0.9 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
+                      onClick={() => setCurrentImageIndex(index)}
+                    >
+                      <Image
+                        src={img}
+                        alt="product image"
+                        fill
+                        className="rounded-[20px] object-cover"
+                      />
+                    </motion.div>
                   ))}
                 </div>
-                <div className="w-[78%%]">
-                  <Image
-                    src={product?.images[currentImageIndex] as string}
-                    alt="product image"
-                    width={500}
-                    height={110}
-                    className="w-[100%] rounded-[20px] max-h-[500px]"
-                  />
+
+                <div className="w-[78%] relative h-[380px]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={product?.images[currentImageIndex]}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 1.02 }}
+                      transition={{
+                        duration: 0.25,
+                        ease: "easeInOut",
+                      }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={product?.images[currentImageIndex] as string}
+                        alt="product image"
+                        width={500}
+                        height={110}
+                        className="min-w-[100%] rounded-[20px] h-[380px] object-cover bg-[#F0F0F0]"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
               <div className="basis-1/2">
@@ -131,6 +169,12 @@ export default function ProductDetails() {
                 </div>
               </div>
             </div>
+
+            <ProductReviews
+              reviews={reviews}
+              setFilters={setFilters}
+              isFetching={isFetching}
+            />
           </div>
         )}
       </div>
